@@ -8,6 +8,7 @@ from logger import log_event
 from shot import Shot
 import sys
 
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -15,9 +16,10 @@ def main():
     dt = 0
     font = pygame.font.Font(None, 36)
     WHITE = (255, 255, 255)
-    lives = 1
+    lives = 2
 
     score = 0
+    
     def show_score(x, y):
         score_surface = font.render("Score: " +str(score), True, WHITE)
         screen.blit(score_surface, (x, y))
@@ -25,6 +27,22 @@ def main():
     def show_lives(x, y):
         lives_surface = font.render("Lives: " +str(lives), True, WHITE)
         screen.blit(lives_surface, (x, y))
+
+    def load_high_score(filename="highscore.txt"):
+        try:
+            with open(filename, "r") as file:
+                content = file.read()
+                if content:
+                    return int(content)
+        except FileNotFoundError:
+            return 0
+        except ValueError:
+            return 0
+        
+                
+    def save_high_score(score, filename="highscore.txt"):
+        with open(filename, "w") as file:
+            file.write(str(score))
 
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
@@ -48,6 +66,8 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+            
+        high_score = load_high_score()
         
         screen.fill("black")
         show_score(10, 10)
@@ -60,11 +80,16 @@ def main():
                 log_event("player_hit")
                 if lives > 0:
                     player.kill()
+                    asteroid.kill()
                     lives -= 1
                     player = Player(x=SCREEN_WIDTH / 2, y=SCREEN_HEIGHT / 2)
                 else:
                     print("Game over!")
                     print("Final Score: ", score)
+                    if score > high_score:
+                        high_score = score
+                        save_high_score(high_score)
+                        print("New high score!")
                     sys.exit()
         for asteroid in asteroids:
             for shot in shots:
