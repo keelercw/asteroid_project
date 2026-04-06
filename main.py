@@ -7,6 +7,7 @@ from asteroid import Asteroid
 from logger import log_event
 from shot import Shot
 import sys
+from particle import Particle
 
 
 def main():
@@ -48,12 +49,14 @@ def main():
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
+    particles = pygame.sprite.Group()
 
 
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable)
     Shot.containers = (shots, updatable, drawable)
+    Particle.containers = (updatable, drawable)
 
     player = Player(x=SCREEN_WIDTH / 2, y=SCREEN_HEIGHT / 2)
     asteroid_field =AsteroidField()
@@ -90,6 +93,8 @@ def main():
                         high_score = score
                         save_high_score(high_score)
                         print("New high score!")
+                    else:
+                        print("High Score:", high_score)
                     sys.exit()
         for asteroid in asteroids:
             for shot in shots:
@@ -98,6 +103,9 @@ def main():
                     shot.kill()
                     asteroid.split()
                     score += 1
+
+
+
         pygame.display.flip()
 
         
